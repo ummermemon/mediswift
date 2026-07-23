@@ -5,7 +5,7 @@
 <title>MediSwift — Superadmin Console</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="icon" type="image/svg+xml" href="{{ asset('favicon.ico') }}" />
+<link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}" />
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root{
