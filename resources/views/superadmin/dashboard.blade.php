@@ -46,7 +46,7 @@
   .stage .l{ font-size:10.5px; color:var(--ink-muted); margin-top:2px; }
 </style>
 </head>
-<body class="text-[15px]">
+<body class="text-[15px]"> 
 
 <div class="flex min-h-screen">
 
