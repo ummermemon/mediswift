@@ -1,11 +1,15 @@
-import { Button } from "@heroui/react";
+import { Routes, Route, Navigate } from "react-router-dom";
 
-export default function App() {
+import AdminRoutes from "./routes/AdminRoutes";
+
+function App() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-100">
-      <Button color="primary" size="lg" variant="danger">
-        HeroUI v3 Working 🚀
-      </Button>
-    </div>
+    <Routes>
+      <Route path="/" element={<Navigate to="/admin/login" replace />} />
+
+      <Route path="/admin/*" element={<AdminRoutes />} />
+    </Routes>
   );
 }
+
+export default App;
