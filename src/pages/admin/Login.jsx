@@ -20,17 +20,57 @@ import {
 } from "lucide-react";
 
 import logo from "../../assets/images/logo/horizontal/horizontal-erased.png";
+import { useNavigate } from "react-router-dom";
+
+
 
 export default function SuperadminLogin() {
   const [isVisible, setIsVisible] = useState(false);
   const [form, setForm] = useState({ email: "", password: "", remember: false });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-    // Wire this up to your authentication handler
-    setTimeout(() => setIsSubmitting(false), 900);
+
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/superadmin/login`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          body: JSON.stringify({
+            email: form.email,
+            password: form.password,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Login failed.");
+      }
+
+      // Save token
+      localStorage.setItem("superadmin_token", data.token);
+
+      // Save user
+      localStorage.setItem(
+        "superadmin",
+        JSON.stringify(data.user)
+      );
+
+      // Redirect
+      navigate("/superadmin/dashboard");
+    } catch (error) {
+      alert(error.message);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -40,7 +80,7 @@ export default function SuperadminLogin() {
 
       {/* Main Login Card */}
       <Card className="w-full max-w-md shadow-xl border border-slate-100 bg-white/95 backdrop-blur-md rounded-2xl overflow-hidden p-0">
-        
+
         {/* Card Header Section */}
         <div className="flex flex-col items-center pt-8 pb-4 px-8 text-center gap-3">
           <img
@@ -48,7 +88,7 @@ export default function SuperadminLogin() {
             alt="MediSwift Logo"
             className="h-12 w-auto object-contain mb-1"
           />
-          
+
 
           <div className="space-y-1">
             <h1 className="text-xl font-bold text-[#0B2545]">

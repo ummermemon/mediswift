@@ -1,13 +1,13 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 
-import AdminRoutes from "./routes/AdminRoutes";
+import SuperAdminRoutes from "./routes/SuperAdminRoutes";
 
 function App() {
   return (
     <Routes>
       <Route path="/" element={<Navigate to="/admin/login" replace />} />
 
-      <Route path="/admin/*" element={<AdminRoutes />} />
+      <Route path="/superadmin/*" element={<SuperAdminRoutes />} />
     </Routes>
   );
 }
