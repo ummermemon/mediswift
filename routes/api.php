@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\DoctorAuthController;
+use App\Http\Controllers\SuperAdminAuthController;
 
 
 Route::get('/user', function (Request $request) {
@@ -15,3 +16,9 @@ Route::post('/login', [AuthController::class, 'login']);
 
 //Doctor Routes
 Route::post('/doctor/register', [DoctorAuthController::class, 'register']);
+
+
+//Superadmin Routes
+Route::post('/superadmin/login', [SuperAdminAuthController::class, 'login']);
+
+
