@@ -5,7 +5,7 @@ import SuperAdminRoutes from "./routes/SuperAdminRoutes";
 function App() {
   return (
     <Routes>
-      <Route path="/" element={<Navigate to="/admin/login" replace />} />
+      <Route path="/" element={<Navigate to="/superadmin/login" replace />} />
 
       <Route path="/superadmin/*" element={<SuperAdminRoutes />} />
     </Routes>

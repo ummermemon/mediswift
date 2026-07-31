@@ -1,7 +1,7 @@
 import { Routes, Route } from "react-router-dom";
 
-import Login from "../pages/admin/Login";
-import Dashboard from "../pages/admin/Dashboard";
+import Login from "../pages/superadmin/Login";
+import Dashboard from "../pages/superadmin/Dashboard";
 
 export default function SuperAdminRoutes() {
   return (
