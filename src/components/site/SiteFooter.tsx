@@ -33,9 +33,9 @@ export function SiteFooter() {
               alt="MediSwift"
               width={1774}
               height={887}
-              className="h-10 w-auto"
+              className="h-14 w-auto sm:h-16"
             />
-            <p className="mt-3 max-w-[260px] text-[12px] leading-relaxed text-ink-soft">
+            <p className="mt-3 max-w-[320px] text-sm leading-relaxed text-ink-soft sm:text-[14px]">
               Genuine medicines, healthcare devices and wellness essentials delivered to your door
               in 30 minutes.
             </p>
