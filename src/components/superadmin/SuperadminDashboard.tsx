@@ -1,33 +1,28 @@
 import * as React from "react";
-import { Link, useNavigate } from "@tanstack/react-router";
-import logo from "@/assets/superadmin-logo.png";
 import {
   Activity,
-  Bell,
   Ban,
   Check,
   CheckCircle2,
   ChevronDown,
   CircleAlert,
   ClipboardCheck,
-  LayoutDashboard,
-  KeyRound,
-  LogOut,
   MapPin,
   Package,
-  PanelLeft,
   Pencil,
   Plus,
   Search,
   Store,
   Trash2,
   Truck,
-  UserRound,
   Users,
   X,
 } from "lucide-react";
+import { SuperadminHeader } from "./layout/SuperadminHeader";
+import { SuperadminMobileNavigation, SuperadminSidebar } from "./layout/SuperadminSidebar";
+import { type SuperadminTab, type SuperadminTabKey } from "./layout/navigation";
 
-type TabKey = "overview" | "doctors" | "pharmacies" | "delivery" | "products" | "patients";
+type TabKey = SuperadminTabKey;
 type DoctorStatus = "pending" | "approved" | "rejected";
 type EntityStatus = "active" | "pending" | "suspended";
 
@@ -72,17 +67,6 @@ type Patient = {
   orders: number;
   status: EntityStatus;
 };
-
-type Tab = { key: TabKey; label: string; Icon: typeof LayoutDashboard };
-
-const tabs: Tab[] = [
-  { key: "overview", label: "Overview", Icon: LayoutDashboard },
-  { key: "doctors", label: "Doctors", Icon: UserRound },
-  { key: "pharmacies", label: "Pharmacies", Icon: Store },
-  { key: "delivery", label: "Delivery partners", Icon: Truck },
-  { key: "products", label: "Products & categories", Icon: Package },
-  { key: "patients", label: "Patients", Icon: Users },
-];
 
 const initialDoctors: Doctor[] = [
   {
@@ -268,7 +252,6 @@ function StatusBadge({ status }: { status: string }) {
 }
 
 export function SuperadminDashboard() {
-  const navigate = useNavigate();
   const [tab, setTab] = React.useState<TabKey>("overview");
   const [doctors, setDoctors] = React.useState(initialDoctors);
   const [pharmacies, setPharmacies] = React.useState(initialPharmacies);
@@ -276,31 +259,6 @@ export function SuperadminDashboard() {
   const [products, setProducts] = React.useState(initialProducts);
   const [patients, setPatients] = React.useState(initialPatients);
   const [query, setQuery] = React.useState("");
-  const [sidebarExpanded, setSidebarExpanded] = React.useState(false);
-  const [profileOpen, setProfileOpen] = React.useState(false);
-  const [notificationsOpen, setNotificationsOpen] = React.useState(false);
-  const profileRef = React.useRef<HTMLDivElement>(null);
-  const notificationsRef = React.useRef<HTMLDivElement>(null);
-
-  React.useEffect(() => {
-    const closeMenus = (event: MouseEvent) => {
-      const target = event.target as Node;
-      if (!profileRef.current?.contains(target)) setProfileOpen(false);
-      if (!notificationsRef.current?.contains(target)) setNotificationsOpen(false);
-    };
-    const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        setProfileOpen(false);
-        setNotificationsOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", closeMenus);
-    document.addEventListener("keydown", closeOnEscape);
-    return () => {
-      document.removeEventListener("mousedown", closeMenus);
-      document.removeEventListener("keydown", closeOnEscape);
-    };
-  }, []);
 
   const updateDoctor = (id: string, status: DoctorStatus) =>
     setDoctors((items) =>
@@ -322,227 +280,21 @@ export function SuperadminDashboard() {
 
   return (
     <div className="superadmin-shell min-h-screen bg-page">
-      <header className="sticky top-0 z-30 border-b border-border bg-card/95 backdrop-blur">
-        <div className="mx-auto flex max-w-[1536px] items-center gap-4 px-4 py-2 lg:px-8">
-          <Link to="/" className="superadmin-logo-wrap flex shrink-0 items-center gap-2">
-            <img
-              src={logo}
-              alt="MediSwift"
-              className="superadmin-logo h-10 w-10 object-contain"
-              width={64}
-              height={64}
-            />
-          </Link>
-          <nav className="hidden items-center gap-5 self-stretch lg:flex" aria-label="Workspace">
-            {tabs.map(({ key, label }) => (
-              <button
-                key={key}
-                type="button"
-                onClick={() => {
-                  setTab(key);
-                  setQuery("");
-                }}
-                className={`relative self-stretch px-0.5 text-[11px] font-medium ${tab === key ? "text-ink" : "text-ink-soft hover:text-ink"}`}
-              >
-                {label.replace(" & categories", "")}
-                {tab === key && <span className="absolute inset-x-0 bottom-0 h-0.5 bg-brand" />}
-              </button>
-            ))}
-          </nav>
-          <div className="ml-auto flex items-center gap-2">
-            <Link
-              to="/"
-              className="hidden items-center gap-1.5 rounded-md border border-border px-3 py-1.5 text-[11px] font-medium text-ink hover:border-brand hover:text-brand sm:flex"
-            >
-              <Store className="h-3.5 w-3.5" />
-              Visit store
-            </Link>
-            <div ref={notificationsRef} className="relative">
-              <button
-                type="button"
-                aria-expanded={notificationsOpen}
-                aria-haspopup="menu"
-                aria-label="Open notifications"
-                onClick={() => {
-                  setNotificationsOpen((open) => !open);
-                  setProfileOpen(false);
-                }}
-                className="relative grid h-10 w-10 place-items-center rounded-lg border border-border text-ink-soft hover:bg-brand-soft hover:text-brand"
-              >
-                <Bell className="h-4 w-4" />
-                <span className="absolute right-1.5 top-1.5 grid h-3.5 min-w-3.5 place-items-center rounded-full bg-destructive px-0.5 text-[9px] font-semibold text-destructive-foreground">
-                  3
-                </span>
-              </button>
-              {notificationsOpen && (
-                <div
-                  role="menu"
-                  className="absolute right-0 top-full z-40 mt-2 w-72 rounded-lg border border-border bg-card p-1.5 shadow-card"
-                >
-                  <div className="flex items-center justify-between px-3 py-2">
-                    <p className="text-[12px] font-semibold text-ink">Notifications</p>
-                    <span className="text-[10px] text-ink-soft">3 new</span>
-                  </div>
-                  {[
-                    { title: "2 doctor registrations await review", time: "5 min ago" },
-                    { title: "Apollo Corner submitted an application", time: "18 min ago" },
-                    { title: "Paracetamol 650mg is low in stock", time: "32 min ago" },
-                  ].map(({ title, time }) => (
-                    <button
-                      key={title}
-                      type="button"
-                      role="menuitem"
-                      onClick={() => setNotificationsOpen(false)}
-                      className="flex w-full items-start gap-2 rounded-md px-3 py-2 text-left hover:bg-brand-soft"
-                    >
-                      <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-brand" />
-                      <span>
-                        <span className="block text-[11.5px] text-ink">{title}</span>
-                        <span className="mt-0.5 block text-[10px] text-ink-soft">{time}</span>
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-            <div ref={profileRef} className="relative">
-              <button
-                type="button"
-                aria-expanded={profileOpen}
-                aria-haspopup="menu"
-                aria-label="Open profile menu"
-                onClick={() => {
-                  setProfileOpen((open) => !open);
-                  setNotificationsOpen(false);
-                }}
-                className="flex items-center gap-2 rounded-lg border border-border px-2.5 py-1.5 text-left hover:bg-brand-soft"
-              >
-                <img
-                  src="https://i.pravatar.cc/96?img=12"
-                  alt="Ummer Memon"
-                  className="h-8 w-8 rounded-full object-cover"
-                  onError={(event) => {
-                    event.currentTarget.style.display = "none";
-                    event.currentTarget.nextElementSibling?.classList.remove("hidden");
-                  }}
-                />
-                <span className="hidden h-8 w-8 place-items-center rounded-full bg-brand-soft text-[11px] font-semibold text-brand">
-                  UM
-                </span>
-                <div className="hidden leading-tight sm:block">
-                  <p className="text-[12px] font-medium text-ink">Ummer Memon</p>
-                  <p className="text-[10px] text-ink-soft">SUPERADMIN</p>
-                </div>
-                <ChevronDown
-                  aria-hidden="true"
-                  className={`hidden h-4 w-4 text-ink-soft transition-transform sm:block ${profileOpen ? "rotate-180" : ""}`}
-                />
-              </button>
-              {profileOpen && (
-                <div
-                  role="menu"
-                  className="absolute right-0 top-full z-40 mt-2 w-48 rounded-lg border border-border bg-card p-1.5 shadow-card"
-                >
-                  {[
-                    { label: "Edit Profile", Icon: UserRound },
-                    { label: "Change Password", Icon: KeyRound },
-                    { label: "Logout", Icon: LogOut },
-                  ].map(({ label, Icon }) => (
-                    <button
-                      key={label}
-                      type="button"
-                      role="menuitem"
-                      onClick={() => {
-                        setProfileOpen(false);
-                        if (label === "Logout") {
-                          localStorage.removeItem("token");
-                          navigate({ to: "/superadmin/login" });
-                        }
-                      }}
-                      className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-[12px] text-ink hover:bg-brand-soft hover:text-brand"
-                    >
-                      <Icon aria-hidden="true" className="h-3.5 w-3.5" /> {label}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </header>
+      <SuperadminHeader activeTab={tab} onTabChange={setTab} onQueryReset={() => setQuery("")} />
 
       <div className="superadmin-frame mx-auto flex max-w-[1536px] gap-0 px-4 lg:px-8">
-        <aside
-          className={`superadmin-rail hidden shrink-0 flex-col border-x border-border lg:flex ${sidebarExpanded ? "superadmin-rail-expanded w-[210px]" : "w-[52px] items-center"}`}
-        >
-          <div className="flex w-full items-center justify-between border-b border-border px-2 py-3">
-            {sidebarExpanded && (
-              <div className="pl-2">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-brand">
-                  Workspace
-                </p>
-                <p className="mt-0.5 text-[11px] text-ink-soft">MediSwift operations</p>
-              </div>
-            )}
-            <button
-              type="button"
-              aria-label={sidebarExpanded ? "Collapse sidebar" : "Expand sidebar"}
-              aria-expanded={sidebarExpanded}
-              title={sidebarExpanded ? "Collapse sidebar" : "Expand sidebar"}
-              onClick={() => setSidebarExpanded((expanded) => !expanded)}
-              className={`grid h-8 w-8 shrink-0 place-items-center rounded-md text-ink-soft hover:bg-brand-soft hover:text-brand ${sidebarExpanded ? "ml-auto" : ""}`}
-            >
-              <PanelLeft className="h-4 w-4" />
-            </button>
-          </div>
-          <div className={`flex w-full flex-col gap-1.5 py-4 ${sidebarExpanded ? "px-2" : "items-center"}`}>
-            {tabs.map(({ key, label, Icon }) => (
-              <button
-                key={key}
-                type="button"
-                title={label}
-                aria-label={label}
-                onClick={() => {
-                  setTab(key);
-                  setQuery("");
-                }}
-                className={`flex h-9 items-center rounded-md text-left ${sidebarExpanded ? "w-full gap-3 px-3" : "w-9 justify-center"} ${tab === key ? "bg-brand text-brand-foreground" : "text-ink-soft hover:bg-brand-soft hover:text-brand"}`}
-              >
-                <Icon className="h-4 w-4" />
-                {sidebarExpanded && <span className="text-[11px] font-medium">{label}</span>}
-                {sidebarExpanded && key === "doctors" && (
-                  <span className="ml-auto rounded bg-chart-4/20 px-1.5 py-0.5 text-[9px] font-semibold text-ink">
-                    {pendingDoctors}
-                  </span>
-                )}
-              </button>
-            ))}
-          </div>
-          <button
-            type="button"
-            aria-label="Create new item"
-            className={`mt-auto mb-4 grid h-8 place-items-center rounded-md border border-border text-ink-soft hover:border-brand hover:text-brand ${sidebarExpanded ? "mx-2 w-[calc(100%-1rem)]" : "w-8"}`}
-          >
-            <Plus className="h-4 w-4" />
-            {sidebarExpanded && <span className="ml-2 text-[11px] font-medium">Create workspace item</span>}
-          </button>
-        </aside>
+        <SuperadminSidebar
+          activeTab={tab}
+          pendingDoctors={pendingDoctors}
+          onTabChange={setTab}
+          onQueryReset={() => setQuery("")}
+        />
         <main className="min-w-0 flex-1 px-0 py-5 lg:px-9 lg:py-7">
-          <div className="mb-4 flex gap-1.5 overflow-x-auto lg:hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            {tabs.map(({ key, label, Icon }) => (
-              <button
-                key={key}
-                onClick={() => {
-                  setTab(key);
-                  setQuery("");
-                }}
-                className={`flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-2 text-[12px] font-medium ${tab === key ? "gradient-brand text-brand-foreground shadow-pill" : "bg-card text-ink-soft shadow-soft"}`}
-              >
-                <Icon className="h-3.5 w-3.5" />
-                {label}
-              </button>
-            ))}
-          </div>
+          <SuperadminMobileNavigation
+            activeTab={tab}
+            onTabChange={setTab}
+            onQueryReset={() => setQuery("")}
+          />
           {tab === "overview" && (
             <Overview
               pendingDoctors={pendingDoctors}
@@ -602,7 +354,7 @@ function TabButton({
 }: {
   active: boolean;
   label: string;
-  Icon: Tab["Icon"];
+  Icon: SuperadminTab["Icon"];
   onClick: () => void;
 }) {
   return (
@@ -803,7 +555,7 @@ function ActionRow({
   action,
   onClick,
 }: {
-  Icon: Tab["Icon"];
+  Icon: SuperadminTab["Icon"];
   title: string;
   detail: string;
   action: string;
