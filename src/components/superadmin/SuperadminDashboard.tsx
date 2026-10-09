@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import logo from "@/assets/superadmin-logo.png";
 import {
   Activity,
@@ -268,6 +268,7 @@ function StatusBadge({ status }: { status: string }) {
 }
 
 export function SuperadminDashboard() {
+  const navigate = useNavigate();
   const [tab, setTab] = React.useState<TabKey>("overview");
   const [doctors, setDoctors] = React.useState(initialDoctors);
   const [pharmacies, setPharmacies] = React.useState(initialPharmacies);
@@ -451,7 +452,13 @@ export function SuperadminDashboard() {
                       key={label}
                       type="button"
                       role="menuitem"
-                      onClick={() => setProfileOpen(false)}
+                      onClick={() => {
+                        setProfileOpen(false);
+                        if (label === "Logout") {
+                          localStorage.removeItem("token");
+                          navigate({ to: "/superadmin/login" });
+                        }
+                      }}
                       className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-[12px] text-ink hover:bg-brand-soft hover:text-brand"
                     >
                       <Icon aria-hidden="true" className="h-3.5 w-3.5" /> {label}

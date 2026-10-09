@@ -10,15 +10,38 @@ export function SuperadminLogin() {
   const [showPassword, setShowPassword] = React.useState(false);
   const [rememberMe, setRememberMe] = React.useState(false);
   const [error, setError] = React.useState("");
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!email.trim() || !password.trim()) {
-      setError("Enter your email and password to continue.");
-      return;
-    }
     setError("");
-    navigate({ to: "/superadmin" });
+    setIsSubmitting(true);
+
+    try {
+      const baseUrl = import.meta.env["VITE_BASE_URL"]?.replace(/\/$/, "");
+      if (!baseUrl) {
+        throw new Error("The API URL is not configured.");
+      }
+
+      const response = await fetch(`${baseUrl}/superadmin/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const result = await response.json().catch(() => null);
+      if (!response.ok) {
+        throw new Error(result?.message ?? "Unable to sign in. Check your details and try again.");
+      }
+      localStorage.setItem("token", result.token);
+      navigate({ to: "/superadmin" });
+    } catch (submitError) {
+      setError(
+        submitError instanceof Error ? submitError.message : "Unable to sign in. Please try again.",
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -41,6 +64,7 @@ export function SuperadminLogin() {
             <input
               id="superadmin-email"
               type="email"
+              required
               value={email}
               onChange={(event) => setEmail(event.target.value)}
               placeholder="admin@mediswift.in"
@@ -56,6 +80,7 @@ export function SuperadminLogin() {
               <input
                 id="superadmin-password"
                 type={showPassword ? "text" : "password"}
+                required
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
                 placeholder="Enter your password"
@@ -92,9 +117,10 @@ export function SuperadminLogin() {
           {error && <p className="text-[11px] text-destructive">{error}</p>}
           <button
             type="submit"
+            disabled={isSubmitting}
             className="flex w-full items-center justify-center gap-2 rounded-lg bg-brand px-4 py-2.5 text-[12px] font-semibold text-brand-foreground shadow-pill transition-colors hover:bg-brand-dark"
           >
-            Sign in to dashboard
+            {isSubmitting ? "Signing in..." : "Sign in to dashboard"}
           </button>
         </form>
       </section>
