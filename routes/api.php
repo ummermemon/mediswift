@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\DoctorAuthController;
 use App\Http\Controllers\SuperAdminAuthController;
+use App\Http\Controllers\SuperAdmin\CategoryController;
 
 
 Route::get('/user', function (Request $request) {
@@ -20,5 +21,7 @@ Route::post('/doctor/register', [DoctorAuthController::class, 'register']);
 
 //Superadmin Routes
 Route::post('/superadmin/login', [SuperAdminAuthController::class, 'login']);
+Route::post('/superadmin/category/add', [CategoryController::class, 'addCategory']);
+Route::get('/superadmin/category/list', [CategoryController::class, 'list']);
 
 
