@@ -2,6 +2,7 @@ import {
   LayoutDashboard,
   Package,
   Store,
+  Tags,
   Truck,
   UserRound,
   Users,
@@ -9,7 +10,7 @@ import {
 } from "lucide-react";
 
 export type SuperadminTabKey =
-  "overview" | "doctors" | "pharmacies" | "delivery" | "products" | "patients";
+  "overview" | "categories" | "doctors" | "pharmacies" | "delivery" | "products" | "patients";
 
 export type SuperadminTab = {
   key: SuperadminTabKey;
@@ -19,6 +20,7 @@ export type SuperadminTab = {
 
 export const superadminTabs: SuperadminTab[] = [
   { key: "overview", label: "Overview", Icon: LayoutDashboard },
+  { key: "categories", label: "Categories", Icon: Tags },
   { key: "doctors", label: "Doctors", Icon: UserRound },
   { key: "pharmacies", label: "Pharmacies", Icon: Store },
   { key: "delivery", label: "Delivery partners", Icon: Truck },
