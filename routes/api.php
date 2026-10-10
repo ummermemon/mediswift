@@ -20,8 +20,14 @@ Route::post('/doctor/register', [DoctorAuthController::class, 'register']);
 
 
 //Superadmin Routes
-Route::post('/superadmin/login', [SuperAdminAuthController::class, 'login']);
-Route::post('/superadmin/category/add', [CategoryController::class, 'addCategory']);
-Route::get('/superadmin/category/list', [CategoryController::class, 'list']);
+Route::prefix('superadmin')->group(function () {
+    Route::post('/login', [SuperAdminAuthController::class, 'login']);
 
+    // Category Routes
+    Route::post('/category/add', [CategoryController::class, 'addCategory']);
+    Route::get('/category/list', [CategoryController::class, 'list']);
+    Route::get('/category/show/{id}', [CategoryController::class, 'show']);
+    Route::post('/category/update/{id}', [CategoryController::class, 'updateCategory']);
+    Route::delete('/category/delete/{id}', [CategoryController::class, 'deleteCategory']);
+});
 
