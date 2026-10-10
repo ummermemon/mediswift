@@ -40,6 +40,11 @@ export function CategoriesPage({
   const [updating, setUpdating] = React.useState(false);
   const [deletingId, setDeletingId] = React.useState<string | null>(null);
   const [deleteError, setDeleteError] = React.useState("");
+  const [isAddOpen, setIsAddOpen] = React.useState(false);
+  const [newName, setNewName] = React.useState("");
+  const [newImage, setNewImage] = React.useState<File | null>(null);
+  const [addError, setAddError] = React.useState("");
+  const [adding, setAdding] = React.useState(false);
 
   const baseUrl = import.meta.env["VITE_BASE_URL"]?.replace(/\/$/, "") ?? "";
 
@@ -88,6 +93,85 @@ export function CategoriesPage({
     String(category.name ?? "").toLowerCase().includes(query.toLowerCase()),
   );
 
+  const handleAddCategory = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    if (!newImage) {
+      setAddError("Please select a category image.");
+      return;
+    }
+
+    try {
+      setAdding(true);
+      setAddError("");
+
+      const payload = new FormData();
+      payload.append("name", newName.trim());
+      payload.append("image", newImage);
+
+      const response = await fetch(`${baseUrl}/superadmin/category/add`, {
+        method: "POST",
+        body: payload,
+      });
+      const result = (await response.json().catch(() => null)) as
+        | { category?: CategoryItem; message?: string }
+        | null;
+
+      if (!response.ok) {
+        throw new Error(
+          result && typeof result.message === "string"
+            ? result.message
+            : "Unable to add category.",
+        );
+      }
+
+      if (result?.category) {
+        setCategories((items) => [...items, result.category!]);
+      } else {
+        await loadCategories();
+      }
+      setIsAddOpen(false);
+      setNewName("");
+      setNewImage(null);
+    } catch (createError) {
+      setAddError(createError instanceof Error ? createError.message : "Unable to add category.");
+    } finally {
+      setAdding(false);
+    }
+  };
+
+  const handleDeleteCategory = async (category: CategoryItem) => {
+    if (!category.id || !window.confirm(`Delete "${category.name ?? "this category"}"?`)) {
+      return;
+    }
+
+    try {
+      setDeletingId(String(category.id));
+      setDeleteError("");
+
+      const response = await fetch(`${baseUrl}/superadmin/category/delete/${category.id}`, {
+        method: "DELETE",
+      });
+      const result = (await response.json().catch(() => null)) as { message?: string } | null;
+
+      if (!response.ok) {
+        throw new Error(
+          result && typeof result.message === "string"
+            ? result.message
+            : "Unable to delete category.",
+        );
+      }
+
+      setCategories((items) => items.filter((item) => String(item.id) !== String(category.id)));
+    } catch (deleteError) {
+      setDeleteError(
+        deleteError instanceof Error ? deleteError.message : "Unable to delete category.",
+      );
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
   const handleUpdateCategory = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
@@ -126,38 +210,6 @@ export function CategoriesPage({
         ...(nextName ? { name: nextName } : {}),
       };
 
-      const handleDeleteCategory = async (category: CategoryItem) => {
-        if (!category.id || !window.confirm(`Delete "${category.name ?? "this category"}"?`)) {
-          return;
-        }
-
-        try {
-          setDeletingId(String(category.id));
-          setDeleteError("");
-
-          const response = await fetch(`${baseUrl}/superadmin/category/delete/${category.id}`, {
-            method: "DELETE",
-          });
-          const result = (await response.json().catch(() => null)) as { message?: string } | null;
-
-          if (!response.ok) {
-            throw new Error(
-              result && typeof result.message === "string"
-                ? result.message
-                : "Unable to delete category.",
-            );
-          }
-
-          setCategories((items) => items.filter((item) => String(item.id) !== String(category.id)));
-        } catch (deleteError) {
-          setDeleteError(
-            deleteError instanceof Error ? deleteError.message : "Unable to delete category.",
-          );
-        } finally {
-          setDeletingId(null);
-        }
-      };
-
       setCategories((items) =>
         items.map((item) =>
           String(item.id) === String(editingCategory.id) ? { ...item, ...updatedCategory } : item,
@@ -182,7 +234,16 @@ export function CategoriesPage({
         title="Categories"
         subtitle="Organize and maintain the product taxonomy."
         action={
-          <button className="inline-flex items-center gap-1.5 rounded-lg gradient-brand px-3 py-2 text-[12px] font-medium text-brand-foreground shadow-pill">
+          <button
+            type="button"
+            onClick={() => {
+              setNewName("");
+              setNewImage(null);
+              setAddError("");
+              setIsAddOpen(true);
+            }}
+            className="inline-flex items-center gap-1.5 rounded-lg gradient-brand px-3 py-2 text-[12px] font-medium text-brand-foreground shadow-pill"
+          >
             <Plus className="h-3.5 w-3.5" /> Add category
           </button>
         }
@@ -195,6 +256,7 @@ export function CategoriesPage({
         {!loading && error && <p className="mt-4 text-[12px] text-destructive">{error}</p>}
 
         {deleteError && <p className="mt-4 text-[12px] text-destructive">{deleteError}</p>}
+        {addError && !isAddOpen && <p className="mt-4 text-[12px] text-destructive">{addError}</p>}
 
         {!loading && !error && (
           <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
@@ -265,6 +327,66 @@ export function CategoriesPage({
           </div>
         )}
       </Section>
+
+      {isAddOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4">
+          <div className="w-full max-w-md rounded-xl bg-card p-5 shadow-xl">
+            <div>
+              <p className="text-[10px] font-semibold uppercase tracking-wide text-brand">Catalog</p>
+              <h3 className="mt-1 text-[18px] font-semibold text-ink">Add category</h3>
+            </div>
+
+            <form onSubmit={handleAddCategory} className="mt-4 space-y-4">
+              <div>
+                <label htmlFor="new-category-name" className="block text-[11px] font-medium text-ink">
+                  Category name
+                </label>
+                <input
+                  id="new-category-name"
+                  required
+                  value={newName}
+                  onChange={(event) => setNewName(event.target.value)}
+                  className="mt-1.5 w-full rounded-lg border border-border bg-background px-3 py-2.5 text-[12px] text-ink outline-none focus:border-brand"
+                  placeholder="Category name"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="new-category-image" className="block text-[11px] font-medium text-ink">
+                  Image
+                </label>
+                <input
+                  id="new-category-image"
+                  type="file"
+                  accept="image/*"
+                  required
+                  onChange={(event) => setNewImage(event.target.files?.[0] ?? null)}
+                  className="mt-1.5 block w-full text-[12px] text-ink file:mr-3 file:rounded-md file:border-0 file:bg-brand-soft file:px-3 file:py-2 file:text-[11px] file:font-medium file:text-brand"
+                />
+              </div>
+
+              {addError && <p className="text-[11px] text-destructive">{addError}</p>}
+
+              <div className="flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setIsAddOpen(false)}
+                  className="rounded-lg border border-border px-3 py-2 text-[12px] font-medium text-ink-soft"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={adding}
+                  className="rounded-lg bg-brand px-3 py-2 text-[12px] font-medium text-brand-foreground disabled:opacity-60"
+                >
+                  {adding ? "Adding..." : "Add category"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {editingCategory && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4">
