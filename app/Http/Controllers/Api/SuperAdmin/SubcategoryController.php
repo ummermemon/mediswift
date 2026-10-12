@@ -17,8 +17,16 @@ class SubcategoryController extends Controller
             'category_id' => 'required|integer|exists:categories,id',
         ]);
 
+        // Handle image upload
+        $imagePath = $request->file('image')->store('subcategories', 'public');
+
+
         // Create a new subcategory
-        $subcategory = Subcategory::create($validatedData);
+        $subcategory = new Subcategory();
+        $subcategory->subcategory = $validatedData['subcategory'];
+        $subcategory->image = $imagePath;
+        $subcategory->category_id = $validatedData['category_id'];  
+        $subcategory->save();
 
         return response()->json([
             'message' => 'Subcategory created successfully',
@@ -29,7 +37,7 @@ class SubcategoryController extends Controller
     public function list(Request $request)
     {
         // Fetch all subcategories
-        $subcategories = Subcategory::all();
+        $subcategories = Subcategory::with('category:id,name')->get();
 
         return response()->json([
             'data' => $subcategories,
