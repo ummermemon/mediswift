@@ -4,8 +4,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\DoctorAuthController;
-use App\Http\Controllers\SuperAdminAuthController;
-use App\Http\Controllers\SuperAdmin\CategoryController;
+use App\Http\Controllers\Api\SuperAdmin\SuperAdminAuthController;
+use App\Http\Controllers\Api\SuperAdmin\CategoryController;
 
 
 Route::get('/user', function (Request $request) {
