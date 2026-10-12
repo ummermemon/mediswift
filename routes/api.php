@@ -24,10 +24,12 @@ Route::middleware(['auth:sanctum', 'role:superadmin'])->prefix('superadmin')->gr
     // Route::post('/login', [SuperAdminAuthController::class, 'login']);
 
     // Category Routes
-    Route::post('/category/add', [CategoryController::class, 'addCategory']);
-    Route::get('/category/list', [CategoryController::class, 'list']);
-    Route::get('/category/show/{id}', [CategoryController::class, 'show']);
-    Route::post('/category/update/{id}', [CategoryController::class, 'updateCategory']);
-    Route::delete('/category/delete/{id}', [CategoryController::class, 'deleteCategory']);
+    Route::prefix('category')->group(function () {
+        Route::post('/add', [CategoryController::class, 'addCategory']);
+        Route::get('/list', [CategoryController::class, 'list']);
+        Route::get('/show/{id}', [CategoryController::class, 'show']);
+        Route::post('/update/{id}', [CategoryController::class, 'updateCategory']);
+        Route::delete('/delete/{id}', [CategoryController::class, 'deleteCategory']);
+    });
 });
 
