@@ -20,7 +20,7 @@ Route::post('/doctor/register', [DoctorAuthController::class, 'register']);
 
 
 //Superadmin Routes
-Route::prefix('superadmin')->group(function () {
+Route::middleware(['auth:sanctum', 'role:superadmin'])->prefix('superadmin')->group(function () {
     Route::post('/login', [SuperAdminAuthController::class, 'login']);
 
     // Category Routes
