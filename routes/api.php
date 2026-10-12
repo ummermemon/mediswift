@@ -18,10 +18,10 @@ Route::post('/login', [AuthController::class, 'login']);
 //Doctor Routes
 Route::post('/doctor/register', [DoctorAuthController::class, 'register']);
 
-
 //Superadmin Routes
+Route::post('/superadmin/login', [SuperAdminAuthController::class, 'login']);
 Route::middleware(['auth:sanctum', 'role:superadmin'])->prefix('superadmin')->group(function () {
-    Route::post('/login', [SuperAdminAuthController::class, 'login']);
+    // Route::post('/login', [SuperAdminAuthController::class, 'login']);
 
     // Category Routes
     Route::post('/category/add', [CategoryController::class, 'addCategory']);
