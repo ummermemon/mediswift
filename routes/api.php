@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\DoctorAuthController;
 use App\Http\Controllers\Api\SuperAdmin\SuperAdminAuthController;
 use App\Http\Controllers\Api\SuperAdmin\CategoryController;
+use App\Http\Controllers\Api\SuperAdmin\SubcategoryController;
 
 
 Route::get('/user', function (Request $request) {
@@ -30,6 +31,12 @@ Route::middleware(['auth:sanctum', 'role:superadmin'])->prefix('superadmin')->gr
         Route::get('/show/{id}', [CategoryController::class, 'show']);
         Route::post('/update/{id}', [CategoryController::class, 'updateCategory']);
         Route::delete('/delete/{id}', [CategoryController::class, 'deleteCategory']);
+    });
+
+    // Subcategory Routes
+    Route::prefix('subcategory')->group(function () {
+        Route::post('/add', [SubcategoryController::class, 'add']);
+        Route::get('/list', [SubcategoryController::class, 'list']);
     });
 });
 

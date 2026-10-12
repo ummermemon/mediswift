@@ -7,6 +7,10 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Category extends Model
 {
+    protected $fillable = [
+        'category',
+        'image',
+    ];
     public function subcategories(): HasMany
     {
         return $this->hasMany(SubCategory::class);
