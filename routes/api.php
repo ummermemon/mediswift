@@ -37,6 +37,9 @@ Route::middleware(['auth:sanctum', 'role:superadmin'])->prefix('superadmin')->gr
     Route::prefix('subcategory')->group(function () {
         Route::post('/add', [SubcategoryController::class, 'add']);
         Route::get('/list', [SubcategoryController::class, 'list']);
+        Route::get('/show/{id}', [SubcategoryController::class, 'show']);
+        Route::post('/update/{id}', [SubcategoryController::class, 'update']);
+        Route::delete('/delete/{id}', [SubcategoryController::class, 'delete']);
     });
 });
 
