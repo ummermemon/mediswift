@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\DoctorAuthController;
 use App\Http\Controllers\Api\SuperAdmin\SuperAdminAuthController;
 use App\Http\Controllers\Api\SuperAdmin\CategoryController;
 use App\Http\Controllers\Api\SuperAdmin\SubcategoryController;
+use App\Http\Controllers\Api\SuperAdmin\BrandController;
 
 
 Route::get('/user', function (Request $request) {
@@ -40,6 +41,15 @@ Route::middleware(['auth:sanctum', 'role:superadmin'])->prefix('superadmin')->gr
         Route::get('/show/{id}', [SubcategoryController::class, 'show']);
         Route::post('/update/{id}', [SubcategoryController::class, 'update']);
         Route::delete('/delete/{id}', [SubcategoryController::class, 'delete']);
+    });
+
+    // Brand Routes
+    Route::prefix('brand')->group(function () {
+        Route::post('/add', [BrandController::class, 'add']);
+        Route::get('/list', [BrandController::class, 'list']);
+        Route::get('/show/{id}', [BrandController::class, 'show']);
+        Route::post('/update/{id}', [BrandController::class, 'update']);
+        Route::delete('/delete/{id}', [BrandController::class, 'delete']);
     });
 });
 
