@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\SuperAdmin\SuperAdminAuthController;
 use App\Http\Controllers\Api\SuperAdmin\CategoryController;
 use App\Http\Controllers\Api\SuperAdmin\SubcategoryController;
 use App\Http\Controllers\Api\SuperAdmin\BrandController;
+use App\Http\Controllers\Api\SuperAdmin\ProductController;
 
 
 Route::get('/user', function (Request $request) {
@@ -50,6 +51,15 @@ Route::middleware(['auth:sanctum', 'role:superadmin'])->prefix('superadmin')->gr
         Route::get('/show/{id}', [BrandController::class, 'show']);
         Route::post('/update/{id}', [BrandController::class, 'update']);
         Route::delete('/delete/{id}', [BrandController::class, 'delete']);
+    });
+
+    // Product Routes
+    Route::prefix('product')->group(function () {
+        Route::post('/add', [ProductController::class, 'add']);
+        Route::get('/list', [ProductController::class, 'list']);
+        Route::get('/show/{id}', [ProductController::class, 'show']);
+        Route::post('/update/{id}', [ProductController::class, 'update']);
+        Route::delete('/delete/{id}', [ProductController::class, 'delete']);
     });
 });
 
