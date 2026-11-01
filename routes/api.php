@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\SuperAdmin\CategoryController;
 use App\Http\Controllers\Api\SuperAdmin\SubcategoryController;
 use App\Http\Controllers\Api\SuperAdmin\BrandController;
 use App\Http\Controllers\Api\SuperAdmin\ProductController;
+use App\Http\Controllers\Api\Pharmacy\PharmacistAuthController;
 
 
 Route::get('/user', function (Request $request) {
@@ -61,5 +62,15 @@ Route::middleware(['auth:sanctum', 'role:superadmin'])->prefix('superadmin')->gr
         Route::post('/update/{id}', [ProductController::class, 'update']);
         Route::delete('/delete/{id}', [ProductController::class, 'delete']);
     });
+});
+
+// Pharmacy Routes
+Route::prefix('pharmacy')->group(function () {
+    
+});
+
+// Pharmacist Routes
+Route::prefix('pharmacist')->group(function () {
+    Route::post('/register', [PharmacistAuthController::class, 'register']);
 });
 
