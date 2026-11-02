@@ -72,5 +72,6 @@ Route::prefix('pharmacy')->group(function () {
 // Pharmacist Routes
 Route::prefix('pharmacist')->group(function () {
     Route::post('/register', [PharmacistAuthController::class, 'register']);
+    Route::post('/login', [PharmacistAuthController::class, 'login']);
 });
 
