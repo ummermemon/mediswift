@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\SuperAdmin\SubcategoryController;
 use App\Http\Controllers\Api\SuperAdmin\BrandController;
 use App\Http\Controllers\Api\SuperAdmin\ProductController;
 use App\Http\Controllers\Api\Pharmacy\PharmacistAuthController;
+use App\Http\Controllers\Api\Pharmacy\PharmacyController;
 
 
 Route::get('/user', function (Request $request) {
@@ -73,5 +74,12 @@ Route::prefix('pharmacy')->group(function () {
 Route::prefix('pharmacist')->group(function () {
     Route::post('/register', [PharmacistAuthController::class, 'register']);
     Route::post('/login', [PharmacistAuthController::class, 'login']);
+    Route::middleware(['auth:sanctum', 'role:pharmacist'])->group(function () {
+        Route::post('/logout', [PharmacistAuthController::class, 'logout']);
+    
+        Route::prefix('pharmacy')->group(function () {
+            Route::post('/register', [PharmacyController::class, 'registerPharmacy']);
+        });
+    });
 });
 
