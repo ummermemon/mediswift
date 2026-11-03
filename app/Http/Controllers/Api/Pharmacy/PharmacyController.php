@@ -41,25 +41,44 @@ class PharmacyController extends Controller
         $pharmacy->drug_license_file = $request->file('drug_license_file')->store('drug_licenses', 'public');
         $pharmacy->gst_number = $validated['gst_number'];
         $pharmacy->gst_certificate_file = $request->file('gst_certificate_file')->store('gst_certificates', 'public');
-        $pharmacy->is_active = false;
         $pharmacy->pharmacist_id = $pharmacist_id;
+        $pharmacy->address_line_1 = $validated['address_line_1'];
+        $pharmacy->address_line_2 = $validated['address_line_2'];
+        $pharmacy->city = $validated['city'];
+        $pharmacy->state = $validated['state'];
+        $pharmacy->pincode = $validated['pincode'];
+        $pharmacy->latitude = $validated['latitude'];
+        $pharmacy->longitude = $validated['longitude'];
+        $pharmacy->is_online = false;
+        $pharmacy->approval_status = 'pending';
+        $pharmacy->status = 'active';
         $pharmacy->save();
-
-        $pharmacyAddress = new PharmacyAddress();
-        $pharmacyAddress->pharmacy_id = $pharmacy->id;
-        $pharmacyAddress->address_line_1 = $validated['address_line_1'];
-        $pharmacyAddress->address_line_2 = $validated['address_line_2'];
-        $pharmacyAddress->city = $validated['city'];
-        $pharmacyAddress->state = $validated['state'];
-        $pharmacyAddress->pincode = $validated['pincode'];
-        $pharmacyAddress->latitude = $validated['latitude'];
-        $pharmacyAddress->longitude = $validated['longitude'];
-        $pharmacyAddress->save();
 
         return response()->json([
             'message' => 'Pharmacy registered successfully.',
-            'pharmacy' => $pharmacy,
-            'address' => $pharmacyAddress
+            'pharmacy' => $pharmacy
         ], 201);
     }
+
+    // public function updateStatus(Request $request, $pharmacy_id)
+    // {
+    //     // Validate Request
+    //     $validated = $request->validate([
+    //         'is_active' => 'required|boolean',
+    //     ]);
+
+    //     $pharmacy = Pharmacy::find($pharmacy_id);
+    //     if (!$pharmacy) {
+    //         return response()->json(['message' => 'Pharmacy not found.'], 404);
+    //     }
+
+    //     $pharmacy->is_active = $validated['is_active'];
+    //     $pharmacy->save();
+
+    //     return response()->json([
+    //         'message' => 'Pharmacy status updated successfully.',
+    //         'pharmacy' => $pharmacy
+    //     ], 200);
+    // }
+    
 }

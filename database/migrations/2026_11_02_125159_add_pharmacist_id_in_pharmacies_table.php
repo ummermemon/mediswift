@@ -11,9 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('pharmacies', function (Blueprint $table) {
-            $table->foreignId('pharmacist_id')->constrained('pharmacists')->after('id');
-        });
+        if (!Schema::hasColumn('pharmacies', 'pharmacist_id')) {
+            Schema::table('pharmacies', function (Blueprint $table) {
+                $table->foreignId('pharmacist_id')->constrained('pharmacists')->after('id');
+            });
+        }
     }
 
     /**
