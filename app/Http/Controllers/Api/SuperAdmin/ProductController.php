@@ -16,12 +16,13 @@ class ProductController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'requires_prescription' => 'required|boolean',
-            'image_1' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'image_1' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'image_2' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'image_3' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'image_4' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'status' => 'required|in:active,inactive',
         ]);
+        
         // Handle image uploads
         if ($request->hasFile('image_1')) {
             $validatedData['image_1'] = $request->file('image_1')->store('products', 'public');

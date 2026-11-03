@@ -60,6 +60,33 @@ class PharmacyController extends Controller
         ], 201);
     }
 
+    public function addProduct(Request $request)
+    {
+        // Validate Request
+        $validated = $request->validate([
+            'pharmacy_id' => 'required|exists:pharmacies,id',
+            'product_id' => 'required|exists:products,id',
+            'quantity' => 'required|integer|min:1',
+            'price' => 'required|numeric|min:0',
+        ]);
+
+        $pharmacy = Pharmacy::find($validated['pharmacy_id']);
+        if (!$pharmacy) {
+            return response()->json(['message' => 'Pharmacy not found.'], 404);
+        }
+
+        $pharmacyproduct = new PharmacyProduct();
+        $pharmacyproduct->pharmacy_id = $validated['pharmacy_id'];
+        $pharmacyproduct->product_id = $validated['product_id'];
+        $pharmacyproduct->quantity = $validated['quantity'];
+        $pharmacyproduct->price = $validated['price'];
+        $pharmacyproduct->save();
+
+        return response()->json([
+            'message' => 'Product added to pharmacy inventory successfully.',
+        ], 201);
+    }
+
     // public function updateStatus(Request $request, $pharmacy_id)
     // {
     //     // Validate Request

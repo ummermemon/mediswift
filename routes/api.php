@@ -80,6 +80,9 @@ Route::prefix('pharmacist')->group(function () {
         Route::prefix('pharmacy')->group(function () {
             Route::post('/register', [PharmacyController::class, 'registerPharmacy']);
 
+            Route::prefix('inventory')->group(function () {
+                Route::post('/add', [PharmacyController::class, 'addProduct']);
+            });
             // Route::post('/status/{pharmacy_id}', [PharmacyController::class, 'updateStatus']);
         });
     });
