@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Pharmacy;
 use App\Models\PharmacyAddress;
 use App\Models\Pharmacist;
+use App\Models\PharmacyProduct;
 
 class PharmacyController extends Controller
 {
@@ -69,6 +70,7 @@ class PharmacyController extends Controller
             'quantity' => 'required|integer|min:1',
             'price' => 'required|numeric|min:0',
         ]);
+        
 
         $pharmacy = Pharmacy::find($validated['pharmacy_id']);
         if (!$pharmacy) {
