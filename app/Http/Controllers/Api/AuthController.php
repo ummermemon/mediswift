@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Auth\Events\Registered;
+
 
 class AuthController extends Controller
 {
@@ -29,6 +31,8 @@ class AuthController extends Controller
             'password' => Hash::make($validated['password']),
         ]);
 
+        event(new Registered($user));
+
         // Create API Token
         $token = $user->createToken('auth_token')->plainTextToken;
 
@@ -39,7 +43,35 @@ class AuthController extends Controller
             'token' => $token,
         ], 201);
     }
+    public function verifyEmail(Request $request, $id, $hash)
+{
+    $user = User::find($id);
 
+    if (!$user || !hash_equals(
+        sha1($user->getEmailForVerification()),
+        $hash
+    )) {
+        return response()->json([
+            'message' => 'Invalid verification link.'
+        ], 400);
+    }
+
+    if ($user->hasVerifiedEmail()) {
+        return response()->json([
+            'message' => 'Email already verified.'
+        ]);
+    }
+
+    if ($user->markEmailAsVerified()) {
+        return response()->json([
+            'message' => 'Email verified successfully.'
+        ]);
+    }
+
+    return response()->json([
+        'message' => 'Email verification failed.'
+    ], 400);
+}
     public function login(Request $request) {
         // Validate Request
         $validated = $request->validate([

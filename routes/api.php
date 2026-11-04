@@ -90,8 +90,15 @@ Route::prefix('pharmacist')->group(function () {
 
 // Mobile App Routes
 Route::prefix('mobile')->group(function () {
-    Route::prefix('customer')->group(function () {
+    Route::prefix('patient')->group(function () {
         Route::post('/register', [AuthController::class, 'register']);
+        // Email Verification
+        Route::get('/email/verify/{id}/{hash}', [AuthController::class, 'verifyEmail'])
+            ->middleware('signed')
+            ->name('verification.verify');
+
+        Route::post('/email/resend', [AuthController::class, 'resendVerificationEmail'])
+            ->middleware(['auth:sanctum', 'throttle:6,1']);
     });
     Route::prefix('delivery_partner')->group(function () {
 
