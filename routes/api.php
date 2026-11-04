@@ -88,3 +88,12 @@ Route::prefix('pharmacist')->group(function () {
     });
 });
 
+// Mobile App Routes
+Route::prefix('mobile')->group(function () {
+    Route::prefix('customer')->group(function () {
+        Route::post('/register', [AuthController::class, 'register']);
+    });
+    Route::prefix('delivery_partner')->group(function () {
+
+    });
+});
