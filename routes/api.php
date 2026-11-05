@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\SuperAdmin\BrandController;
 use App\Http\Controllers\Api\SuperAdmin\ProductController;
 use App\Http\Controllers\Api\Pharmacy\PharmacistAuthController;
 use App\Http\Controllers\Api\Pharmacy\PharmacyController;
+use App\Http\Controllers\Api\Patient\AddressController;
 
 
 Route::get('/user', function (Request $request) {
@@ -92,13 +93,20 @@ Route::prefix('pharmacist')->group(function () {
 Route::prefix('mobile')->group(function () {
     Route::prefix('patient')->group(function () {
         Route::post('/register', [AuthController::class, 'register']);
-        // Email Verification
-        Route::get('/email/verify/{id}/{hash}', [AuthController::class, 'verifyEmail'])
-            ->middleware('signed')
-            ->name('verification.verify');
+        Route::post('/login', [AuthController::class, 'login']);
+        Route::get('/email/verify/{id}/{hash}', [AuthController::class, 'verifyEmail'])->middleware('signed')->name('verification.verify');
+        
+        Route::middleware('auth:sanctum')->group(function () {
+            Route::get('/user', [AuthController::class, 'user']);
 
-        Route::post('/email/resend', [AuthController::class, 'resendVerificationEmail'])
-            ->middleware(['auth:sanctum', 'throttle:6,1']);
+            Route::prefix('address')->group(function () {
+                Route::post('/add', [AddressController::class, 'addAddress']);
+                Route::get('/list', [AddressController::class, 'listAddress']);
+            });
+        });
+
+        // Route::post('/email/resend', [AuthController::class, 'resendVerificationEmail'])
+        //     ->middleware(['auth:sanctum', 'throttle:6,1']);
     });
     Route::prefix('delivery_partner')->group(function () {
 
