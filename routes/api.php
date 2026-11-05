@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\SuperAdmin\ProductController;
 use App\Http\Controllers\Api\Pharmacy\PharmacistAuthController;
 use App\Http\Controllers\Api\Pharmacy\PharmacyController;
 use App\Http\Controllers\Api\Patient\AddressController;
+use App\Http\Controllers\Api\Patient\PatientAuthController;
 
 
 Route::get('/user', function (Request $request) {
@@ -92,10 +93,13 @@ Route::prefix('pharmacist')->group(function () {
 // Mobile App Routes
 Route::prefix('mobile')->group(function () {
     Route::prefix('patient')->group(function () {
-        Route::post('/register', [AuthController::class, 'register']);
-        Route::post('/login', [AuthController::class, 'login']);
-        Route::get('/email/verify/{id}/{hash}', [AuthController::class, 'verifyEmail'])->middleware('signed')->name('verification.verify');
-        
+        // Route::post('/register', [AuthController::class, 'register']);
+        // Route::post('/login', [PatientAuthController::class, 'login']);
+        // Route::get('/email/verify/{id}/{hash}', [AuthController::class, 'verifyEmail'])->middleware('signed')->name('verification.verify');
+        Route::prefix('auth')->group(function() {
+            Route::post('/send-otp', [PatientAuthController::class, 'sendOtp']);
+            Route::post('/verify-otp', [PatientAuthController::class, 'verifyOtp']);
+        });
         Route::middleware('auth:sanctum')->group(function () {
             Route::get('/user', [AuthController::class, 'user']);
 

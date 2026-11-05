@@ -48,6 +48,12 @@ class AddressController extends Controller
     public function listAddress()
     {
         $user_id = auth()->user()->id;
-        dd($user_id);
+        
+        $address = PatientAddress::where('patient_id', $user_id)->get();
+
+        return response()->json([
+            'message' => 'Address Retrieved',
+            'address' => $address,
+        ], 201);
     }
 }
