@@ -99,6 +99,7 @@ Route::prefix('mobile')->group(function () {
         Route::prefix('auth')->group(function() {
             Route::post('/send-otp', [PatientAuthController::class, 'sendOtp']);
             Route::post('/verify-otp', [PatientAuthController::class, 'verifyOtp']);
+            Route::post('/register', [PatientAuthController::class, 'register']);
         });
         Route::middleware('auth:sanctum')->group(function () {
             Route::get('/user', [AuthController::class, 'user']);
