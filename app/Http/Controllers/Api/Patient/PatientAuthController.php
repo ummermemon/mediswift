@@ -218,7 +218,6 @@ class PatientAuthController extends Controller
 
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
-            'password' => 'required|string|min:8|confirmed',
 
             'phone' => 'required|string|max:20',
             'dob' => 'required|date|before:today',
@@ -278,12 +277,20 @@ class PatientAuthController extends Controller
                 ];
             }
 
+            if (User::where('phone', $request->phone)->exists()) {
+                $registration->delete();
+
+                return [
+                    'error' => 'An account with this mobile already exists.',
+                    'status' => 409,
+                ];
+            }
+
             // Create user
             $user = User::create([
                 'first_name' => $request->first_name,
                 'last_name' => $request->last_name,
                 'email' => $email,
-                'password' => Hash::make($request->password),
                 'phone' => $request->phone,
                 'role' => 'patient',
                 'email_verified_at' => now(),

@@ -24,6 +24,7 @@ class User extends Authenticatable implements MustVerifyEmail
     
     protected $fillable = [
         'phone',
+        'email_verified_at'
     ];
     
     protected function casts(): array
