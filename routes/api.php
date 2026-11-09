@@ -104,6 +104,7 @@ Route::prefix('mobile')->group(function () {
             Route::prefix('address')->group(function () {
                 Route::post('/add', [AddressController::class, 'addAddress']);
                 Route::get('/list', [AddressController::class, 'listAddress']);
+                Route::get('/{id}', [AddressController::class, 'getAddress']);
                 Route::delete('/delete/{id}', [AddressController::class, 'deleteAddress']);
             });
         });

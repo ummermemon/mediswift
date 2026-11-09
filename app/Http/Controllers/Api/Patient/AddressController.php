@@ -55,14 +55,53 @@ class AddressController extends Controller
 
     public function listAddress()
     {
-        $user_id = auth()->user()->id;
-        
-        $address = PatientAddress::where('patient_id', $user_id)->get();
+        try {
+            $user = Auth::user();
+            $patient = Patient::where('user_id', $user->id)->first();
 
-        return response()->json([
-            'message' => 'Address Retrieved',
-            'address' => $address,
-        ], 201);
+            $addresses = PatientAddress::where('patient_id', $patient->id)->get();
+
+            return response()->json([
+                'status' => true,
+                'message' => "All Addresses Fetched.",
+                'addresses' => $addresses
+            ], 200);
+
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'message' => "Something went wrong. Please try again."
+            ], 500);
+        }
+    }
+
+    public function getAddress($id)
+    {
+        try {
+            $user = Auth::user();
+            $patient = Patient::where('user_id', $user->id)->first();
+
+            $address = PatientAddress::where('id', $id)->where('patient_id', $patient->id)->first();
+
+            if (!$address){
+                return response()->json([
+                    'status' => false,
+                    'message' => "Address not found."
+                ], 404);
+            }
+
+            return response()->json([
+                'status' => true,
+                'message' => "Address fetched.",
+                'address' => $address
+            ], 200);
+            
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'message' => "Something went wrong. Please try again."
+            ], 500);
+        }
     }
 
     public function deleteAddress($id)
