@@ -11,12 +11,12 @@ class AddressController extends Controller
     public function addAddress(Request $request)
     {
         $validatedData = $request->validate([
-            'address_type' => 'required',
+            'address_type' => 'required|in:work,home,other',
             'address_line_1' => 'required|string|max:255',
             'address_line_2' => 'nullable|string|max:255',
             'city' => 'required|string|max:100',
             'state' => 'required|string|max:100',
-            'pincode' => 'required|string|max:20',
+            'pincode' => 'required|integer|digits:6',
             'latitude' => 'required|numeric',
             'longitude' => 'required|numeric'
         ]);
@@ -55,5 +55,16 @@ class AddressController extends Controller
             'message' => 'Address Retrieved',
             'address' => $address,
         ], 201);
+    }
+
+    public function deleteAddress($id)
+    {
+        dd('delete address called');
+        $address = PatientAddress::find($id);
+        if (!$address) {
+            return response()->json([
+                'message' => "Address not found"
+            ], 404);
+        }
     }
 }

@@ -93,9 +93,6 @@ Route::prefix('pharmacist')->group(function () {
 // Mobile App Routes
 Route::prefix('mobile')->group(function () {
     Route::prefix('patient')->group(function () {
-        // Route::post('/register', [AuthController::class, 'register']);
-        // Route::post('/login', [PatientAuthController::class, 'login']);
-        // Route::get('/email/verify/{id}/{hash}', [AuthController::class, 'verifyEmail'])->middleware('signed')->name('verification.verify');
         Route::prefix('auth')->group(function() {
             Route::post('/send-otp', [PatientAuthController::class, 'sendOtp']);
             Route::post('/verify-otp', [PatientAuthController::class, 'verifyOtp']);
@@ -107,6 +104,7 @@ Route::prefix('mobile')->group(function () {
             Route::prefix('address')->group(function () {
                 Route::post('/add', [AddressController::class, 'addAddress']);
                 Route::get('/list', [AddressController::class, 'listAddress']);
+                Route::delete('/delete/{id}', [AddressController::class, 'deleteAddress']);
             });
         });
 
