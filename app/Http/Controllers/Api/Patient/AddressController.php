@@ -165,18 +165,26 @@ class AddressController extends Controller
 
     public function deleteAddress($id)
     {
-        $address = PatientAddress::find($id);
+        $user = Auth::user();
+        $patient = Patient::where('user_id', $user->id)->first();
+        
+        $address = PatientAddress::where([
+            ['id', '=', $id],
+            ['patient_id', '=', $patient->id],
+        ])->first();
+
         if (!$address) {
             return response()->json([
                 'status' => false,
                 'message' => "Address not found."
             ], 404);
         }
-        // dd("User ID: ".Auth::user()->id);
+
+        $address->delete();
+
         return response()->json([
             'status' => true,
-            'message' => "Address",
-            'address' => $address
+            'message' => "Address Deleted Successfully."
         ], 200);
     }
 }

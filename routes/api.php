@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\Pharmacy\PharmacistAuthController;
 use App\Http\Controllers\Api\Pharmacy\PharmacyController;
 use App\Http\Controllers\Api\Patient\AddressController;
 use App\Http\Controllers\Api\Patient\PatientAuthController;
+use App\Http\Controllers\Api\Patient\CartItemController;
 
 
 Route::get('/user', function (Request $request) {
@@ -107,6 +108,13 @@ Route::prefix('mobile')->group(function () {
                 Route::get('/{id}', [AddressController::class, 'getAddress']);
                 Route::put('/update/{id}', [AddressController::class, 'updateAddress']);
                 Route::delete('/delete/{id}', [AddressController::class, 'deleteAddress']);
+            });
+
+            Route::prefix('cart')->group(function () {
+                Route::post('/add', [CartItemController::class, 'addItem']);
+                Route::get('/list', [CartItemController::class, 'listItems']);
+                Route::put('/update/{id}', [CartItemController::class, 'updateItemQty']);
+                Route::delete('/delete/{id}', [CartItemController::class, 'removeItem']);
             });
         });
 
