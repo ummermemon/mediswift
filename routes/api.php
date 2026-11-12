@@ -57,8 +57,6 @@ Route::prefix('web')->group(function() {
             Route::post('/login', [SuperAdminAuthController::class, 'login']);
         });
         Route::middleware(['auth:sanctum', 'role:superadmin'])->group(function () {
-            // Route::post('/login', [SuperAdminAuthController::class, 'login']);
-
             // Category Routes
             Route::prefix('category')->group(function () {
                 Route::post('/add', [CategoryController::class, 'addCategory']);

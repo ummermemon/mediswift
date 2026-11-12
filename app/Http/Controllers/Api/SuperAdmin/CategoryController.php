@@ -6,27 +6,51 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Category;
+use Illuminate\Support\Facades\Validator;
 
 class CategoryController extends Controller
 {
     public function addCategory(Request $request)
     {
-        // Validate the request data
-        $validatedData = $request->validate([
-            'name' => 'required|string|max:255',
-            'image' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-        ]);
+        try {
+            $validator = Validator::make($request->all(), [
+                'name' => 'required|string|max:255|unique:categories,name',
+                'image' => 'required|image|mimes:jpeg,png,jpg,svg|max:2048',
+                'status' => 'required|in:active,inactive'
+            ]);
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => "Validation Error.",
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+            $name = $request->name;
+            $status = $request->status;
 
-        //Upload the image 
-        $imagePath = $request->file('image')->store('categories', 'public');
+            //Upload the image 
+            $imagePath = $request->file('image')->store('uploads/categories', 'public');
 
-        // Create a new category
-        $category = new Category();
-        $category->name = $validatedData['name'];
-        $category->image = $imagePath;
-        $category->save();
+            // Create a new category
+            $category = new Category();
+            $category->name = $name;
+            $category->image = $imagePath;
+            $category->status = $status;
+            $category->save();
 
-        return response()->json(['message' => 'Category added successfully', 'category' => $category], 201);
+            return response()->json([
+                'status' => true,
+                'message' => 'Category added successfully', 
+                'category' => $category
+            ], 201);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'message' => "Something went wrong. Please try again.",
+                'error' => $th
+            ], 500);
+        }
+        
     }
     public function list()
     {

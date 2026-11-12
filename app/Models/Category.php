@@ -10,6 +10,7 @@ class Category extends Model
     protected $fillable = [
         'category',
         'image',
+        'status'
     ];
     public function subcategories(): HasMany
     {
