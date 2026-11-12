@@ -26,47 +26,6 @@ Route::post('/login', [AuthController::class, 'login']);
 //Doctor Routes
 Route::post('/doctor/register', [DoctorAuthController::class, 'register']);
 
-//Superadmin Routes
-Route::post('/superadmin/login', [SuperAdminAuthController::class, 'login']);
-Route::middleware(['auth:sanctum', 'role:superadmin'])->prefix('superadmin')->group(function () {
-    // Route::post('/login', [SuperAdminAuthController::class, 'login']);
-
-    // Category Routes
-    Route::prefix('category')->group(function () {
-        Route::post('/add', [CategoryController::class, 'addCategory']);
-        Route::get('/list', [CategoryController::class, 'list']);
-        Route::get('/show/{id}', [CategoryController::class, 'show']);
-        Route::post('/update/{id}', [CategoryController::class, 'updateCategory']);
-        Route::delete('/delete/{id}', [CategoryController::class, 'deleteCategory']);
-    });
-
-    // Subcategory Routes
-    Route::prefix('subcategory')->group(function () {
-        Route::post('/add', [SubcategoryController::class, 'add']);
-        Route::get('/list', [SubcategoryController::class, 'list']);
-        Route::get('/show/{id}', [SubcategoryController::class, 'show']);
-        Route::post('/update/{id}', [SubcategoryController::class, 'update']);
-        Route::delete('/delete/{id}', [SubcategoryController::class, 'delete']);
-    });
-
-    // Brand Routes
-    Route::prefix('brand')->group(function () {
-        Route::post('/add', [BrandController::class, 'add']);
-        Route::get('/list', [BrandController::class, 'list']);
-        Route::get('/show/{id}', [BrandController::class, 'show']);
-        Route::post('/update/{id}', [BrandController::class, 'update']);
-        Route::delete('/delete/{id}', [BrandController::class, 'delete']);
-    });
-
-    // Product Routes
-    Route::prefix('product')->group(function () {
-        Route::post('/add', [ProductController::class, 'add']);
-        Route::get('/list', [ProductController::class, 'list']);
-        Route::get('/show/{id}', [ProductController::class, 'show']);
-        Route::post('/update/{id}', [ProductController::class, 'update']);
-        Route::delete('/delete/{id}', [ProductController::class, 'delete']);
-    });
-});
 
 // Pharmacy Routes
 Route::prefix('pharmacy')->group(function () {
@@ -87,6 +46,54 @@ Route::prefix('pharmacist')->group(function () {
                 Route::post('/add', [PharmacyController::class, 'addProduct']);
             });
             // Route::post('/status/{pharmacy_id}', [PharmacyController::class, 'updateStatus']);
+        });
+    });
+});
+
+// Web Routes
+Route::prefix('web')->group(function() {
+    Route::prefix('superadmin')->group(function() {
+        Route::prefix('auth')->group(function(){
+            Route::post('/login', [SuperAdminAuthController::class, 'login']);
+        });
+        Route::middleware(['auth:sanctum', 'role:superadmin'])->group(function () {
+            // Route::post('/login', [SuperAdminAuthController::class, 'login']);
+
+            // Category Routes
+            Route::prefix('category')->group(function () {
+                Route::post('/add', [CategoryController::class, 'addCategory']);
+                Route::get('/list', [CategoryController::class, 'list']);
+                Route::get('/show/{id}', [CategoryController::class, 'show']);
+                Route::post('/update/{id}', [CategoryController::class, 'updateCategory']);
+                Route::delete('/delete/{id}', [CategoryController::class, 'deleteCategory']);
+            });
+
+            // Subcategory Routes
+            Route::prefix('subcategory')->group(function () {
+                Route::post('/add', [SubcategoryController::class, 'add']);
+                Route::get('/list', [SubcategoryController::class, 'list']);
+                Route::get('/show/{id}', [SubcategoryController::class, 'show']);
+                Route::post('/update/{id}', [SubcategoryController::class, 'update']);
+                Route::delete('/delete/{id}', [SubcategoryController::class, 'delete']);
+            });
+
+            // Brand Routes
+            Route::prefix('brand')->group(function () {
+                Route::post('/add', [BrandController::class, 'add']);
+                Route::get('/list', [BrandController::class, 'list']);
+                Route::get('/show/{id}', [BrandController::class, 'show']);
+                Route::post('/update/{id}', [BrandController::class, 'update']);
+                Route::delete('/delete/{id}', [BrandController::class, 'delete']);
+            });
+
+            // Product Routes
+            Route::prefix('product')->group(function () {
+                Route::post('/add', [ProductController::class, 'add']);
+                Route::get('/list', [ProductController::class, 'list']);
+                Route::get('/show/{id}', [ProductController::class, 'show']);
+                Route::post('/update/{id}', [ProductController::class, 'update']);
+                Route::delete('/delete/{id}', [ProductController::class, 'delete']);
+            });
         });
     });
 });
@@ -117,9 +124,6 @@ Route::prefix('mobile')->group(function () {
                 Route::delete('/delete/{id}', [CartItemController::class, 'removeItem']);
             });
         });
-
-        // Route::post('/email/resend', [AuthController::class, 'resendVerificationEmail'])
-        //     ->middleware(['auth:sanctum', 'throttle:6,1']);
     });
     Route::prefix('delivery_partner')->group(function () {
 
