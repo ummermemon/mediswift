@@ -62,7 +62,7 @@ Route::prefix('web')->group(function() {
                 Route::post('/add', [CategoryController::class, 'addCategory']);
                 Route::get('/list', [CategoryController::class, 'list']);
                 Route::get('/show/{id}', [CategoryController::class, 'show']);
-                Route::post('/update/{id}', [CategoryController::class, 'updateCategory']);
+                Route::put('/update/{id}', [CategoryController::class, 'updateCategory']);
                 Route::delete('/delete/{id}', [CategoryController::class, 'deleteCategory']);
             });
 

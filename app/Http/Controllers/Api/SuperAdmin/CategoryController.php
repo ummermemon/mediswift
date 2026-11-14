@@ -46,61 +46,149 @@ class CategoryController extends Controller
         } catch (\Throwable $th) {
             return response()->json([
                 'status' => false,
+                'message' => "Something went wrong. Please try again."
+            ], 500);
+        }
+        
+    }
+
+    public function list()
+    {
+        try {
+            $categories = Category::all();
+
+            if ($categories->count() == 0){
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Categories not found.'
+                ], 404);
+            }
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Categories found.',
+                'categories' => $categories
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'message' => "Something went wrong. Please try again."
+            ], 500);
+        }
+        
+    }
+    
+    public function show($id)
+    {
+        try {
+            $category = Category::find($id);
+
+            if (!$category) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Category not found.'
+                ], 404);
+            }
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Category found.',
+                'category' => $category
+            ], 200);
+
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
                 'message' => "Something went wrong. Please try again.",
                 'error' => $th
             ], 500);
         }
         
     }
-    public function list()
-    {
-        $categories = Category::all();
-        return response()->json(['categories' => $categories], 200);
-    }
-    
-    public function show($id)
-    {
-        $category = Category::findOrFail($id);
-        return response()->json(['category' => $category], 200);
-    }
 
     public function updateCategory(Request $request, $id)
     {
-        $category = Category::findOrFail($id);
-
-        $validatedData = $request->validate([
-            'name' => 'sometimes|required|string|max:255',
-            'image' => 'sometimes|nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-        ]);
-
-        if (isset($validatedData['name'])) {
-            $category->name = $validatedData['name'];
-        }
-
-        if ($request->hasFile('image')) {
-            if ($category->image && Storage::disk('public')->exists($category->image)) {
-                Storage::disk('public')->delete($category->image);
+        try {
+            $category = Category::find($id);
+            if (!$category) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Category not found.'
+                ], 404);
             }
 
-            $imagePath = $request->file('image')->store('categories', 'public');
-            $category->image = $imagePath;
+            $validator = Validator::make($request->all(), [
+                'name' => 'required|string|max:255|unique:categories,name,'.$id,
+                'image' => 'nullable|image|mimes:jpeg,png,jpg,svg|max:2048',
+                'status' => 'required|in:active,inactive'
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => "Validation Error.",
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+
+            $name = $request->name;
+            $status = $request->status;
+
+            if ($request->hasFile('image')) {
+                //Delete the existing image
+                if ($category->image && Storage::disk('public')->exists($category->image)) {
+                    Storage::disk('public')->delete($category->image);
+                }
+                $imagePath = $request->file('image')->store('uploads/categories', 'public');
+                $category->image = $imagePath;
+            }
+
+            $category->name = $name;
+            $category->status = $status;
+
+            $category->save();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Category updated successfully', 
+                'category' => $category
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'message' => "Something went wrong. Please try again."
+            ], 500);
         }
-
-        $category->save();
-
-        return response()->json(['message' => 'Category updated successfully', 'category' => $category], 200);
     }
 
     public function deleteCategory($id)
     {
-        $category = Category::findOrFail($id);
+        try {
+            $category = Category::find($id);
+            
+            if (!$category) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Category not found.'
+                ], 404);
+            }
 
-        if ($category->image) {
-            Storage::disk('public')->delete($category->image);
+            if ($category->image) {
+                Storage::disk('public')->delete($category->image);
+            }
+
+            $category->delete();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Category deleted successfully'
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'message' => "Something went wrong. Please try again."
+            ], 500);
         }
-
-        $category->delete();
-
-        return response()->json(['message' => 'Category deleted successfully'], 200);
+        
     }
 }
