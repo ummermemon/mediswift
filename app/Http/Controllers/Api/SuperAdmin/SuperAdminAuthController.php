@@ -15,7 +15,7 @@ class SuperAdminAuthController extends Controller
         try {
             $validator = Validator::make($request->all(), [
                 'email' => 'required|email',
-                'password' => 'required',
+                'password' => 'required|min:5|max:255',
             ]);
             if ($validator->fails()) {
                 return response()->json([
