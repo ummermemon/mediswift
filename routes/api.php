@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\SuperAdmin\CategoryController;
 use App\Http\Controllers\Api\SuperAdmin\SubcategoryController;
 use App\Http\Controllers\Api\SuperAdmin\BrandController;
 use App\Http\Controllers\Api\SuperAdmin\ProductController;
+use App\Http\Controllers\Api\SuperAdmin\SuperAdminProfileController;
 use App\Http\Controllers\Api\Pharmacy\PharmacistAuthController;
 use App\Http\Controllers\Api\Pharmacy\PharmacyController;
 use App\Http\Controllers\Api\Patient\AddressController;
@@ -91,6 +92,12 @@ Route::prefix('web')->group(function() {
                 Route::get('/show/{id}', [ProductController::class, 'show']);
                 Route::post('/update/{id}', [ProductController::class, 'update']);
                 Route::delete('/delete/{id}', [ProductController::class, 'delete']);
+            });
+
+            Route::prefix('profile')->group(function() {
+                Route::put('/change-password', [SuperAdminProfileController::class, 'changePassword']);
+                Route::put('/edit-profile', [SuperAdminProfileController::class, 'editProfile']);
+                Route::get('/get-profile', [SuperAdminProfileController::class, 'getProfile']);
             });
         });
     });
