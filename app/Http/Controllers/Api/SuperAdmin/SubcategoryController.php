@@ -4,35 +4,62 @@ namespace App\Http\Controllers\Api\SuperAdmin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Subcategory;
 use Illuminate\Support\Facades\Storage;
+use App\Models\Subcategory;
+use App\Models\Category;
+use Illuminate\Support\Facades\Validator;
+
 
 class SubcategoryController extends Controller
 {
     public function add(Request $request)
     {
-        // Validate the request data
-        $validatedData = $request->validate([
-            'subcategory' => 'required|string|max:255',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'category_id' => 'required|integer|exists:categories,id',
-        ]);
+        try {
+            $validator = Validator::make($request->all(), [
+                'subcategory' => 'required|string|max:255|unique:subcategories,subcategory',
+                'category_id' => 'required|integer|exists:categories,id',
+                'status' => 'required|in:active,inactive'
+            ]);
+            
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => "Validation Error.",
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+            $subcategory_name = $request->subcategory;
+            $category_id = $request->category_id;
+            $status = $request->status;
 
-        // Handle image upload
-        $imagePath = $request->file('image')->store('subcategories', 'public');
+            $category = Category::where('status', 'active')->find($category_id);
 
+            if(!$category){
+                return response()->json([
+                    'status' => false,
+                    'message' => "Category not found."
+                ], 404);
+            }
 
-        // Create a new subcategory
-        $subcategory = new Subcategory();
-        $subcategory->subcategory = $validatedData['subcategory'];
-        $subcategory->image = $imagePath;
-        $subcategory->category_id = $validatedData['category_id'];  
-        $subcategory->save();
+            $subcategory = new Subcategory();
+            $subcategory->subcategory = $subcategory_name;
+            $subcategory->category_id = $category_id;
+            $subcategory->status = $status;
+            $subcategory->save();
+            
+            return response()->json([
+                'status' => true,
+                'message' => 'Subcategory created successfully',
+                'data' => $subcategory,
+            ], 201);
 
-        return response()->json([
-            'message' => 'Subcategory created successfully',
-            'data' => $subcategory,
-        ], 201);
+        } catch (\Throwable $th) {
+            
+            return response()->json([
+                'status' => false,
+                'message' => "Something went wrong. Please try again."
+            ], 500);
+        }
     }
 
     public function list(Request $request)

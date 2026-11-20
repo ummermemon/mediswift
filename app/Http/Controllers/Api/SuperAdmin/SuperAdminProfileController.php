@@ -142,7 +142,7 @@ class SuperAdminProfileController extends Controller
                     'status' => false,
                     'message' => 'Unauthorized access.'
                 ], 401);
-            } 
+            }
                 
             return response()->json([
                 'status' => true,
