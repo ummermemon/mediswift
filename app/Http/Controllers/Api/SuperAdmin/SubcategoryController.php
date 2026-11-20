@@ -64,69 +64,128 @@ class SubcategoryController extends Controller
 
     public function list(Request $request)
     {
-        // Fetch all subcategories
-        $subcategories = Subcategory::with('category')->get();
+        try {
+            $subcategories = Subcategory::all();
 
-        return response()->json([
-            'data' => $subcategories,
-        ], 200);
+            if ($subcategories->count() == 0){
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Subcategories not found.'
+                ], 404);
+            }
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Subcategories found.',
+                'subcategories' => $subcategories
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'message' => "Something went wrong. Please try again."
+            ], 500);
+        }
     }
 
     public function show($id)
     {
-        $subcategory = Subcategory::with('category')->findOrFail($id);
-        return response()->json(['subcategory' => $subcategory], 200);
+        try {
+            $subcategory = Subcategory::find($id);
+
+            if (!$subcategory) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Subcategory not found.'
+                ], 404);
+            }
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Subcategory found.',
+                'subcategory' => $subcategory
+            ], 200);
+
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'message' => "Something went wrong. Please try again.",
+                'error' => $th
+            ], 500);
+        }
     }
 
     public function update(Request $request, $id)
     {
-        $subcategory = Subcategory::findOrFail($id);
-
-        $validatedData = $request->validate([
-            'subcategory' => 'sometimes|required|string|max:255',
-            'image' => 'sometimes|nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'category_id' => 'sometimes|required|integer|exists:categories,id',
-        ]);
-
-        if (isset($validatedData['subcategory'])) {
-            $subcategory->subcategory = $validatedData['subcategory'];
-        }
-
-        if (isset($validatedData['category_id'])) {
-            $subcategory->category_id = $validatedData['category_id'];
-        }
-
-        if ($request->hasFile('image')) {
-            // Delete the old image if it exists
-            if ($subcategory->image && Storage::disk('public')->exists($subcategory->image)) {
-                Storage::disk('public')->delete($subcategory->image);
+        try {
+            $subcategory = Subcategory::find($id);
+            if (!$subcategory) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Subcategory not found.'
+                ], 404);
             }
-            // Store the new image
-            $imagePath = $request->file('image')->store('subcategories', 'public');
-            $subcategory->image = $imagePath;
+
+            $validator = Validator::make($request->all(), [
+                'name' => 'required|string|max:255|unique:subcategories,subcategory,'.$id,
+                'category_id' => 'required|integer|exists:categories,id',
+                'status' => 'required|in:active,inactive'
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => "Validation Error.",
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+
+            $name = $request->name;
+            $category_id = $request->category_id;
+            $status = $request->status;
+
+            $subcategory->subcategory = $name;
+            $subcategory->category_id = $category_id;
+            $subcategory->status = $status;
+
+            $subcategory->save();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Subcategory updated successfully', 
+                'subcategory' => $subcategory
+            ], 200);
+
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'message' => "Something went wrong. Please try again."
+            ], 500);
         }
-
-        $subcategory->save();
-
-        return response()->json([
-            'message' => 'Subcategory updated successfully',
-            'data' => $subcategory,
-        ], 200);
     }
 
     public function delete($id)
     {
-        $subcategory = Subcategory::findOrFail($id);
+        try {
+            $subcategory = Subcategory::find($id);
+            
+            if (!$subcategory) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Subcategory not found.'
+                ], 404);
+            }
 
-        // Delete the image if it exists
-        if ($subcategory->image && Storage::disk('public')->exists($subcategory->image)) {
-            Storage::disk('public')->delete($subcategory->image);
+            $subcategory->delete();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Subcategory deleted successfully'
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'message' => "Something went wrong. Please try again."
+            ], 500);
         }
-
-        $subcategory->delete();
-
-        return response()->json([
-            'message' => 'Subcategory deleted successfully',
-        ], 200);
     }
 }
