@@ -5,69 +5,200 @@ namespace App\Http\Controllers\Api\SuperAdmin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Brand;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Storage;
 
 class BrandController extends Controller
 {
     public function add(Request $request)
     {
-        $validatedData = $request->validate([
-            'name' => 'required|string|max:255',
-            'logo' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'description' => 'nullable|string',
-            'website' => 'nullable|url',
-            'status' => 'required|in:active,inactive',
-        ]);
+        try {
+            $validator = Validator::make($request->all(), [
+                'name' => 'required|string|max:255',
+                'logo' => 'required|image|mimes:jpeg,png,jpg,svg|max:2048',
+                'description' => 'nullable|string',
+                'website' => 'nullable|url',
+                'status' => 'required|in:active,inactive',
+            ]);
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => "Validation Error.",
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+            $name = $request->name;
+            $description = $request->description;
+            $website = $request->website;
+            $status = $request->status;
 
-        $imagePath = $request->file('logo')->store('brand/logos', 'public');
+            //Upload the logo 
+            $logoPath = $request->file('logo')->store('uploads/brands', 'public');
 
-        $brand = Brand::create([
-            'name' => $validatedData['name'],
-            'logo' => $imagePath,
-            'description' => $validatedData['description'] ?? null,
-            'website' => $validatedData['website'] ?? null,
-            'status' => $validatedData['status'],
-        ]);
+            // Create a new category
+            $brand = new Brand();
+            $brand->name = $name;
+            $brand->logo = $logoPath;
+            $brand->description = $description;
+            $brand->website = $website;
+            $brand->status = $status;
+            $brand->save();
 
-        return response()->json(['message' => 'Brand added successfully', 'brand' => $brand], 201);
+            return response()->json([
+                'status' => true,
+                'message' => 'Brand added successfully', 
+                'brand' => $brand
+            ], 201);
 
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'message' => "Something went wrong. Please try again."
+            ], 500);
+        }
     }
+
     public function list()
     {
-        $brands = Brand::all();
-        return response()->json(['brands' => $brands], 200);
+        try {
+            $brands = Brand::all();
+
+            if ($brands->count() == 0){
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Brands not found.'
+                ], 404);
+            }
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Brands found.',
+                'brands' => $brands
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'message' => "Something went wrong. Please try again."
+            ], 500);
+        }
     }
+
     public function show($id)
     {
-        $brand = Brand::findOrFail($id);
-        return response()->json(['brand' => $brand], 200);
+        try {
+            $brand = Brand::find($id);
+
+            if (!$brand) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Brand not found.'
+                ], 404);
+            }
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Brand found.',
+                'brand' => $brand
+            ], 200);
+
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'message' => "Something went wrong. Please try again.",
+                'error' => $th
+            ], 500);
+        }
     }
+
     public function update(Request $request, $id)
     {
-        $brand = Brand::findOrFail($id);
+        try {
+            $brand = Brand::find($id);
+            if (!$brand) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Brand not found.'
+                ], 404);
+            }
 
-        $validatedData = $request->validate([
-            'name' => 'required|string|max:255',
-            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'description' => 'nullable|string',
-            'website' => 'nullable|url',
-            'status' => 'required|in:active,inactive',
-        ]);
+            $validator = Validator::make($request->all(), [
+                'name' => 'required|string|max:255',
+                'logo' => 'nullable|image|mimes:jpeg,png,jpg,svg|max:2048',
+                'description' => 'nullable|string',
+                'website' => 'nullable|url',
+                'status' => 'required|in:active,inactive',
+            ]);
 
-        if ($request->hasFile('logo')) {
-            $imagePath = $request->file('logo')->store('brand/logos', 'public');
-            $validatedData['logo'] = $imagePath;
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => "Validation Error.",
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+
+            $name = $request->name;
+            $description = $request->description;
+            $website = $request->website;
+            $status = $request->status;
+
+            if ($request->hasFile('logo')) {
+                //Delete the existing image
+                if ($brand->logo && Storage::disk('public')->exists($brand->logo)) {
+                    Storage::disk('public')->delete($brand->logo);
+                }
+                $imagePath = $request->file('logo')->store('uploads/brands', 'public');
+                $brand->logo = $imagePath;
+            }
+
+            $brand->name = $name;
+            $brand->status = $status;
+            $brand->description = $description;
+            $brand->website = $website;
+            $brand->save();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Brand updated successfully', 
+                'brand' => $brand
+            ], 200);
+        } catch (\Throwable $th) {
+            throw $th;
+            return response()->json([
+                'status' => false,
+                'message' => "Something went wrong. Please try again."
+            ], 500);
         }
-
-        $brand->update($validatedData);
-
-        return response()->json(['message' => 'Brand updated successfully', 'brand' => $brand], 200);
     }
     
     public function delete($id)
     {
-        $brand = Brand::findOrFail($id);
-        $brand->delete();
+        try {
+            $brand = Brand::find($id);
+            
+            if (!$brand) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Brand not found.'
+                ], 404);
+            }
 
-        return response()->json(['message' => 'Brand deleted successfully'], 200);
+            if ($brand->logo) {
+                Storage::disk('public')->delete($brand->logo);
+            }
+
+            $brand->delete();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Brand deleted successfully'
+            ], 200);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'message' => "Something went wrong. Please try again."
+            ], 500);
+        }
+        
     }
 }
