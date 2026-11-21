@@ -65,7 +65,7 @@ class SubcategoryController extends Controller
     public function list(Request $request)
     {
         try {
-            $subcategories = Subcategory::all();
+            $subcategories = Subcategory::with('category')->get();
 
             if ($subcategories->count() == 0){
                 return response()->json([
@@ -80,6 +80,7 @@ class SubcategoryController extends Controller
                 'subcategories' => $subcategories
             ], 200);
         } catch (\Throwable $th) {
+            throw $th;
             return response()->json([
                 'status' => false,
                 'message' => "Something went wrong. Please try again."
